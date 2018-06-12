@@ -5,8 +5,12 @@
   "license": "MIT",
   "dependencies": {
     "blessed": "^0.1.81",
+    "dotenv": "^6.0.0",
     "redux": "^4.0.0",
     "redux-p2p-gundb-transport": "^1.0.3",
-    "redux-p2p-middleware": "^1.0.9",
+    "redux-p2p-middleware": "^1.0.9"
+  },
+  "bin": {
+    "reduxchat": "./index.js"
   }
 }

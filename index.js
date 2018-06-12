@@ -1,8 +1,8 @@
+#!/usr/bin/env node
+
 var createActions = require("redux-p2p-middleware").default;
 var GunTransport = require("redux-p2p-gundb-transport/node");
 var { createStore, applyMiddleware } = require("redux");
-var prompt = require("prompt");
-var term = require("terminal-kit").terminal;
 var blessed = require("blessed");
 
 //test gun server
