@@ -2,13 +2,16 @@ var createActions = require("redux-p2p-middleware").default;
 var GunTransport = require("redux-p2p-gundb-transport/node");
 var { createStore, applyMiddleware } = require("redux");
 var prompt = require("prompt");
-var console = require("better-console");
 var term = require("terminal-kit").terminal;
+var blessed = require("blessed");
+
 //test gun server
 var transport = new GunTransport(
     "https://redux-replication-server.herokuapp.com/gun"
 );
+//Create the rplication middle ware
 var replicator = createActions(["ADD_MESSAGE"], transport);
+//Create the redux store
 var store = createStore(reducer, applyMiddleware(replicator));
 
 var initialState = {
@@ -34,37 +37,91 @@ function reducer(state = initialState, action) {
 }
 
 store.subscribe(() => {
-    console.clear();
     var state = store.getState();
-    term(state.messages.join("\n"));
+    box.setContent(state.messages.join("\n"));
+    box.setScrollPerc(100)
+    screen.render();
 });
 
-function loop() {
-    term.magenta('\nMessage:')
-    term.inputField((err, result) => {
-        if (err || result == null) return;
+// ------ UI stuff ------ //
 
-        store.dispatch({
-            type: "ADD_MESSAGE",
-          message: result
-        });
-        loop();
-    });
-}
+var screen = blessed.screen({
+    smartCSR: true
+});
 
-function terminate() {
-    term.grabInput(false);
-    setTimeout(function() {
-        process.exit();
-    }, 100);
-}
-
-term.on("key", function(name, matches, data) {
-    if (name === "CTRL_C") {
-        terminate();
+screen.title = "redux-p2p node demo";
+// Create a box perfectly centered horizontally and vertically.
+var box = blessed.box({
+    top: "center",
+    left: "center",
+    width: "80%",
+    height: "80%",
+    content: "",
+    scrollable: true,
+    alwaysScroll: true,
+    scrollbar: {
+        ch: " ",
+        inverse: true
+    },
+    tags: true,
+    border: {
+        type: "line"
+    },
+    style: {
+        fg: "white",
+        bg: "magenta",
+        border: {
+            fg: "#f0f0f0"
+        },
+        hover: {
+            bg: "green"
+        }
     }
 });
 
-console.clear();
+var input = blessed.textbox({
+    top: "82%",
+    left: "center",
+    width: "80%",
+    height: "20%",
+    content: "",
+    tags: true,
+    inputOnFocus: true,
+    border: {
+        type: "line"
+    },
+    style: {
+        fg: "white",
+        bg: "magenta",
+        border: {
+            fg: "#f0f0f0"
+        },
+        hover: {
+            bg: "green"
+        }
+    }
+});
 
-loop();
+screen.append(box);
+screen.append(input);
+
+//Add the message to the store
+input.on("submit", val => {
+    if(val === '/exit') {
+        return process.exit(0);
+    }
+    store.dispatch({
+        type: "ADD_MESSAGE",
+        message: val
+    });
+    input.setValue("");
+    screen.render();
+});
+
+// Quit on Escape, q, or Control-C.
+screen.key(["escape", "q", "C-c"], function(ch, key) {
+    return process.exit(0);
+});
+
+console.clear();
+screen.render();
