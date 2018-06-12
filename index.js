@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+//hide GUN log messages
+var process = require('process')
+process.env.GUN_ENV='production' //hide log messages
 
 var createActions = require("redux-p2p-middleware").default;
 var GunTransport = require("redux-p2p-gundb-transport/node");
