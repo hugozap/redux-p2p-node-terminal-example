@@ -1,4 +1,4 @@
-#redux-p2p-node-example
+## redux-p2p-node-example
 
 terminal based Mini chat implementation using a redux-p2p store and node.
 
