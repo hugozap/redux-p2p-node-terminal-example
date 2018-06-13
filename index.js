@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 //hide GUN log messages
-var process = require('process')
-process.env.GUN_ENV='production' //hide log messages
+var process = require("process");
+process.env.GUN_ENV = "production"; //hide log messages
 
 var createActions = require("redux-p2p-middleware").default;
 var GunTransport = require("redux-p2p-gundb-transport/node");
@@ -24,14 +24,21 @@ var initialState = {
 function reducer(state = initialState, action) {
     switch (action.type) {
         case "ADD_MESSAGE":
+            let sortedMessages = [
+                ...state.messages,
+                {
+                    message: action.message.substring(0, 140),
+                    created: action.created
+                }
+            ];
+            sortedMessages.sort((a, b) => {
+                return a.created > b.created ? -1 : 0;
+            });
             return Object.assign(
                 {},
                 {
                     state,
-                    messages: [
-                        ...state.messages,
-                        action.message.substring(0, 140)
-                    ]
+                    messages: sortedMessages
                 }
             );
         default:
@@ -41,8 +48,8 @@ function reducer(state = initialState, action) {
 
 store.subscribe(() => {
     var state = store.getState();
-    box.setContent(state.messages.join("\n"));
-    box.setScrollPerc(100)
+    box.setContent(state.messages.map(m => m.message).join("\n"));
+    box.setScrollPerc(100);
     screen.render();
 });
 
@@ -71,8 +78,8 @@ var box = blessed.box({
         type: "line"
     },
     style: {
-        fg: "white",
-        bg: "magenta",
+        fg: "#2e3029",
+        bg: "#bed8d1",
         border: {
             fg: "#f0f0f0"
         },
@@ -94,8 +101,8 @@ var input = blessed.textbox({
         type: "line"
     },
     style: {
-        fg: "white",
-        bg: "magenta",
+        fg: "black",
+        bg: "white",
         border: {
             fg: "#f0f0f0"
         },
@@ -110,14 +117,16 @@ screen.append(input);
 
 //Add the message to the store
 input.on("submit", val => {
-    if(val === '/exit') {
+    if (val === "/exit") {
         return process.exit(0);
     }
     store.dispatch({
         type: "ADD_MESSAGE",
-        message: val
+        message: val,
+        created: new Date()
     });
     input.setValue("");
+    input.focus();
     screen.render();
 });
 
@@ -128,3 +137,5 @@ screen.key(["escape", "q", "C-c"], function(ch, key) {
 
 console.clear();
 screen.render();
+
+
