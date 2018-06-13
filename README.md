@@ -1,6 +1,6 @@
-#redux-p2p-node-example
+## redux-p2p-node-example
 
-terminal based Mini chat implementation using a redux-p2p store and node.
+terminal based simple chat using a redux-p2p store and node.
 
 The transport currently used is [https://github.com/hugozap/redux-p2p-gundb-transport](https://github.com/hugozap/redux-p2p-gundb-transport)
 
