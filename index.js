@@ -24,6 +24,10 @@ var initialState = {
 function reducer(state = initialState, action) {
     switch (action.type) {
         case "ADD_MESSAGE":
+            //Ignore old (bad formed) messages
+            if(!action.created){
+                return state;
+            }
             let sortedMessages = [
                 ...state.messages,
                 {
@@ -48,7 +52,7 @@ function reducer(state = initialState, action) {
 
 store.subscribe(() => {
     var state = store.getState();
-    box.setContent(state.messages.map(m => m.message).join("\n"));
+    box.setContent(state.messages.filter(m => m.created).map(m => m.created + '-' +m.message).join("\n"));
     box.setScrollPerc(100);
     screen.render();
 });
@@ -123,7 +127,7 @@ input.on("submit", val => {
     store.dispatch({
         type: "ADD_MESSAGE",
         message: val,
-        created: new Date()
+        created: new Date().toISOString()
     });
     input.setValue("");
     input.focus();
