@@ -32,7 +32,7 @@ function reducer(state = initialState, action) {
                 }
             ];
             sortedMessages.sort((a, b) => {
-                return a.created > b.created ? -1 : 0;
+                return a.created > b.created ? 1 : -1;
             });
             return Object.assign(
                 {},
